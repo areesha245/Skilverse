@@ -1,0 +1,6 @@
+/* Skillverse styles - colors from the Figma Style Guide */
+:root {
+  --primary: #6C4DFF; --secondary: #00B8D9; --accent: #FFB020;
+  --success: #22C55E; --error: #EF4444; --ink: #1F1B3A; --muted: #6B6890; --bg: #F6F4FF;
+}
+body { margin: 0; font-family: Inter, Arial, sans-serif; color: var(--ink); background: var(--bg); }
