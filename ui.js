@@ -1,9 +1,10 @@
 // ui.js - DOM rendering and event listeners (no inline JS in HTML)
 import { register, login, logout, getCurrentUser } from './auth.js';
-import { getDailyUsage, getSessions, loadRubrics, saveReport } from './storage.js';
+import { getDailyUsage, getSessions, loadRubrics, loadRoles, saveReport } from './storage.js';
 import { submitExplanation } from './teachBack.js';
+import { startRoom, submitAnswer, useHint, THRESHOLDS } from './interviewRoom.js';
 import { DAILY_LIMIT } from './aiManager.js';
-import { BADGES, XP_PER_LEVEL, levelFromXp, xpProgress, getProfile } from './gamification.js';
+import { BADGES, XP_PER_LEVEL, levelFromXp, xpProgress, getProfile, getClearedRooms } from './gamification.js';
 
 export function showMessage(text) {
   const box = document.getElementById('formError');
@@ -172,7 +173,114 @@ async function initTeachBack() {
   });
 }
 
+// ---------- Interview Escape Room ----------
+function addChip(containerId, group, value, text, checked) {
+  const label = document.createElement('label');
+  label.className = 'chip';
+  const input = document.createElement('input');
+  input.type = 'radio'; input.name = group; input.value = value; input.checked = checked;
+  const span = document.createElement('span');
+  span.textContent = text;
+  label.append(input, span);
+  document.getElementById(containerId).append(label);
+}
+
+// One card per room: Cleared, Next (can be started) or Locked
+function renderRooms(role) {
+  const cleared = getClearedRooms(getCurrentUser(), role.id);
+  const grid = document.getElementById('roomGrid');
+  grid.replaceChildren();
+  let nextFound = false;
+  role.rooms.forEach(room => {
+    let status = 'Locked';
+    if (cleared.includes(room.id)) status = 'Cleared';
+    else if (!nextFound) { status = 'Next'; nextFound = true; }
+    const card = document.createElement('div');
+    card.className = `card room-card room-${status.toLowerCase()}`;
+    const name = document.createElement('strong');
+    name.textContent = room.name;
+    const label = document.createElement('span');
+    label.textContent = status;
+    card.append(name, label);
+    grid.append(card);
+  });
+}
+
+function showQuestion(info) {
+  document.getElementById('questionCard').hidden = false;
+  setText('questionCount', `${info.room.name} - Question ${info.number} of ${info.total}`);
+  setText('questionText', info.question.text);
+  const hint = document.getElementById('hintText');
+  hint.hidden = true;
+  hint.textContent = '';
+  document.getElementById('answerForm').reset();
+}
+
+function showFeedback(feedback) {
+  document.getElementById('feedbackCard').hidden = false;
+  setText('feedbackScore', `Your last answer: ${feedback.score}/10`);
+  renderList('feedbackTips', feedback.tips.length ? feedback.tips : ['Great answer!']);
+}
+
+function showRoomResult(result) {
+  document.getElementById('questionCard').hidden = true;
+  document.getElementById('resultCard').hidden = false;
+  setText('resultTitle', result.passed ? `${result.roomName} cleared!` : 'Not yet - try this room again');
+  setText('resultText', `Average score ${result.average}/10 (pass mark ${result.threshold})`);
+  document.getElementById('resultBar').value = result.average;
+  let reward = result.passed ? `+${result.xpEarned} XP. The next room is unlocked.` : 'Read the tips above and try again.';
+  if (result.leveledUp) reward += ' Level up!';
+  if (result.newBadges.length) reward += ` New badge: ${result.newBadges.map(b => b.name).join(', ')}`;
+  setText('resultReward', reward);
+}
+
+async function initInterview() {
+  const user = getCurrentUser();
+  if (!user) { window.location.href = 'login.html'; return; }
+  initShell(user);
+
+  let roles;
+  try { roles = await loadRoles(); }
+  catch (error) { showMessage('Could not load interview questions. Please refresh the page.'); return; }
+
+  roles.forEach((role, index) => addChip('roleList', 'role', role.id, role.name, index === 0));
+  Object.keys(THRESHOLDS).forEach(level =>
+    addChip('difficultyList', 'difficulty', level, `${level[0].toUpperCase()}${level.slice(1)} (pass ${THRESHOLDS[level]}/10)`, level === 'medium'));
+
+  const form = document.getElementById('interviewForm');
+  const answerForm = document.getElementById('answerForm');
+  const selectedRole = () => roles.find(role => role.id === form.elements.role.value);
+  renderRooms(selectedRole());
+  form.elements.role.forEach(radio => radio.addEventListener('change', () => renderRooms(selectedRole())));
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showMessage('');
+    document.getElementById('resultCard').hidden = true;
+    document.getElementById('feedbackCard').hidden = true;
+    const result = await startRoom(selectedRole().id, form.elements.difficulty.value);
+    if (!result.ok) { showMessage(result.error); return; }
+    showQuestion(result);
+  });
+
+  answerForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    showMessage('');
+    const result = submitAnswer(answerForm.elements.answer.value);
+    if (!result.ok) { showMessage(result.error); return; }
+    showFeedback(result.feedback);
+    if (result.finished) { showRoomResult(result.result); renderRooms(selectedRole()); }
+    else showQuestion(result);
+  });
+
+  document.getElementById('hintBtn').addEventListener('click', () => {
+    const hint = document.getElementById('hintText');
+    hint.textContent = `Hint: ${useHint()}`;
+    hint.hidden = false;
+  });
+}
+
 // Each HTML page sets data-page on <body>; run the matching setup
-const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard, teachback: initTeachBack };
+const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard, teachback: initTeachBack, interview: initInterview };
 const init = pages[document.body.dataset.page];
 if (init) init();

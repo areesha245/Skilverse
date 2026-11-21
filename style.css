@@ -108,3 +108,16 @@ progress::-moz-progress-bar { background: var(--primary); }
 #followUps { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
 #followUps[hidden] { display: none; }
 @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+
+/* Interview Escape Room */
+[hidden] { display: none !important; }
+.section-gap { margin-top: 24px; }
+.btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.room-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 24px; }
+.room-card { border-left: 8px solid #C9C6DD; font-size: 18px; }
+.room-card span { font-size: 13px; font-weight: 600; color: var(--muted); }
+.room-cleared { border-left-color: var(--success); }
+.room-cleared span { color: var(--success); }
+.room-next { border-left-color: var(--primary); }
+.room-next span { color: var(--primary); }
+@media (max-width: 800px) { .room-grid { grid-template-columns: 1fr; } }

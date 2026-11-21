@@ -59,4 +59,14 @@ export function checkBadges(userId) {
   return earned;
 }
 
-export function unlockNextRoom(userId) { return recordStat(userId, 'roomsCleared', 1); }
+export function getClearedRooms(user, roleId) { return (user.clearedRooms || {})[roleId] || []; }
+
+// Marks a room as cleared (only counts the first time) and checks badges
+export function unlockNextRoom(userId, roleId, roomId) {
+  const found = getUserById(userId);
+  if (!found) return { ok: false, newBadges: [] };
+  const cleared = getClearedRooms(found, roleId);
+  if (cleared.includes(roomId)) return { ok: true, newBadges: [] }; // already cleared before
+  updateUser(userId, { clearedRooms: { ...(found.clearedRooms || {}), [roleId]: [...cleared, roomId] } });
+  return recordStat(userId, 'roomsCleared', 1);
+}

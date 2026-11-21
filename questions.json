@@ -1,1 +1,44 @@
-[]
+{
+  "roles": [
+    {
+      "id": "software-intern", "name": "Software Intern",
+      "rooms": [
+        { "id": "hr", "name": "HR Room", "questions": [
+          { "text": "Tell me about yourself and why you want this internship.", "keywords": ["student", "learn", "interest", "project", "passion", "experience", "skills"], "hint": "Mention your studies, one project and why you want to learn." },
+          { "text": "What are your strengths and one weakness?", "keywords": ["strength", "weakness", "improve", "learning", "working on"], "hint": "Name a real weakness and how you are improving it." },
+          { "text": "Where do you see yourself in five years?", "keywords": ["grow", "goal", "learn", "developer", "career", "skills"], "hint": "Talk about the skills you want to grow." }
+        ] },
+        { "id": "technical", "name": "Technical Room", "questions": [
+          { "text": "What is the difference between a stack and a queue?", "keywords": ["lifo", "fifo", "last in", "first in", "push", "pop", "enqueue", "dequeue"], "hint": "Think about the order in which items come out." },
+          { "text": "What is object-oriented programming? Name its main principles.", "keywords": ["encapsulation", "inheritance", "polymorphism", "abstraction", "object", "class"], "hint": "There are four main principles." },
+          { "text": "What is the difference between an array and a linked list?", "keywords": ["index", "memory", "node", "pointer", "contiguous", "insert", "dynamic"], "hint": "Think about how each one stores data in memory." }
+        ] },
+        { "id": "behavioural", "name": "Behavioural Room", "questions": [
+          { "text": "Describe a time you worked in a team on a project.", "keywords": ["team", "role", "task", "result", "communicat", "deadline", "together"], "hint": "Use Situation, Task, Action, Result." },
+          { "text": "Tell me about a difficult problem you solved.", "keywords": ["problem", "solution", "steps", "solved", "learned", "debug", "result"], "hint": "Explain the steps you took and what you learned." },
+          { "text": "How do you handle a tight deadline?", "keywords": ["prioritize", "plan", "time", "deadline", "schedule", "communicat", "tasks"], "hint": "Talk about planning and priorities." }
+        ] }
+      ]
+    },
+    {
+      "id": "data-analyst", "name": "Data Analyst",
+      "rooms": [
+        { "id": "hr", "name": "HR Room", "questions": [
+          { "text": "Why do you want to become a data analyst?", "keywords": ["data", "insight", "decision", "curious", "analysis", "patterns", "problem"], "hint": "Say what excites you about finding answers in data." },
+          { "text": "What are your strengths and one weakness?", "keywords": ["strength", "weakness", "improve", "learning", "working on"], "hint": "Name a real weakness and how you are improving it." },
+          { "text": "How do you keep learning new tools?", "keywords": ["course", "practice", "project", "tutorial", "learn", "read", "tools"], "hint": "Mention courses, practice or small projects." }
+        ] },
+        { "id": "technical", "name": "Technical Room", "questions": [
+          { "text": "What is the difference between mean, median and mode?", "keywords": ["average", "middle", "most frequent", "outlier", "mean", "median", "mode"], "hint": "Think about which one is affected by outliers." },
+          { "text": "What is data cleaning and why is it important?", "keywords": ["missing", "duplicate", "accuracy", "errors", "quality", "inconsistent", "format"], "hint": "Think about what can be wrong in raw data." },
+          { "text": "What is a join in SQL? Name two types.", "keywords": ["inner", "left", "right", "full", "table", "combine", "key"], "hint": "A join combines rows from two tables." }
+        ] },
+        { "id": "behavioural", "name": "Behavioural Room", "questions": [
+          { "text": "Describe a time you worked in a team on a project.", "keywords": ["team", "role", "task", "result", "communicat", "deadline", "together"], "hint": "Use Situation, Task, Action, Result." },
+          { "text": "Tell me about a difficult problem you solved.", "keywords": ["problem", "solution", "steps", "solved", "learned", "debug", "result"], "hint": "Explain the steps you took and what you learned." },
+          { "text": "How do you handle a tight deadline?", "keywords": ["prioritize", "plan", "time", "deadline", "schedule", "communicat", "tasks"], "hint": "Talk about planning and priorities." }
+        ] }
+      ]
+    }
+  ]
+}

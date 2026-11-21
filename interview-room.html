@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interview Escape Room | Skillverse</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="interview">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-logo"></span>Skillverse</div>
+      <nav class="nav">
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="story-realm.html">Story Realm</a>
+        <a class="nav-link" href="teach-back.html">Teach-Back Arena</a>
+        <a class="nav-link active" href="interview-room.html">Interview Room</a>
+        <a class="nav-link" href="progress.html">Progress</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h1>Interview Escape Room</h1>
+          <p class="muted">Pass each room to unlock the next.</p>
+        </div>
+        <div class="top-actions">
+          <span id="aiLeft" class="pill"></span>
+          <button id="logoutBtn" class="btn btn-secondary" type="button">Log out</button>
+        </div>
+      </header>
+
+      <form id="interviewForm" class="card stack section-gap" novalidate>
+        <p id="formError" class="form-error" hidden></p>
+        <div class="field"><span>Role</span><div id="roleList" class="chip-row"></div></div>
+        <div class="field"><span>Difficulty</span><div id="difficultyList" class="chip-row"></div></div>
+        <div><button type="submit" class="btn btn-primary">Start next room</button></div>
+      </form>
+
+      <section id="roomGrid" class="room-grid"></section>
+
+      <section id="questionCard" class="card stack section-gap" hidden>
+        <span id="questionCount" class="muted small"></span>
+        <h2 id="questionText"></h2>
+        <p id="hintText" class="muted" hidden></p>
+        <form id="answerForm" class="stack" novalidate>
+          <label class="field"><span>Your answer</span>
+            <textarea name="answer" rows="6" placeholder="Type your answer..."></textarea>
+          </label>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button id="hintBtn" type="button" class="btn btn-secondary">Hint (-1 point)</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="feedbackCard" class="card section-gap" hidden>
+        <h2 id="feedbackScore"></h2>
+        <ul id="feedbackTips"></ul>
+      </section>
+
+      <section id="resultCard" class="card section-gap" hidden>
+        <h2 id="resultTitle"></h2>
+        <p id="resultText"></p>
+        <progress id="resultBar" value="0" max="10"></progress>
+        <p id="resultReward" class="muted"></p>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>

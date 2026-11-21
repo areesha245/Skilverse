@@ -62,5 +62,16 @@ export async function loadRubrics() {
   return response.json();
 }
 
-// ---- to be written later ----
-export async function loadQuestions(role, level) { /* TODO: fetch('data/questions.json') */ }
+// Interview questions are loaded once and kept in memory
+let questionData = null;
+async function loadQuestionData() {
+  if (questionData) return questionData;
+  const response = await fetch('data/questions.json');
+  if (!response.ok) throw new Error('Could not load questions');
+  questionData = await response.json();
+  return questionData;
+}
+export async function loadRoles() { return (await loadQuestionData()).roles; }
+export async function loadQuestions(roleId) {
+  return (await loadRoles()).find(role => role.id === roleId) || null;
+}

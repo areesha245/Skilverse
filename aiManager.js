@@ -43,4 +43,21 @@ export function requestFeedback(userId, concept, text) {
   return { ok: true, ...result };
 }
 
-export function evaluateAnswer(question, answer) { /* TODO (Interview Room) */ }
+// Scores one interview answer out of 10: content 6 + length 3 + structure 1
+export function evaluateAnswer(question, answer) {
+  const lower = answer.toLowerCase();
+  const words = answer.trim().split(/\s+/).filter(Boolean).length;
+  const sentences = answer.split(/[.!?]+/).filter(s => s.trim()).length;
+  const matched = question.keywords.filter(keyword => lower.includes(keyword));
+  const missing = question.keywords.filter(keyword => !lower.includes(keyword));
+
+  const needed = Math.min(question.keywords.length, 3); // 3 key words give full content marks
+  const content = Math.round(6 * Math.min(1, matched.length / needed));
+  const length = Math.round(3 * Math.min(1, words / 25));
+  const structure = sentences >= 2 ? 1 : 0;
+
+  const tips = [];
+  if (content < 6 && missing.length > 0) tips.push(`Try mentioning: ${missing.slice(0, 2).join(', ')}.`);
+  if (words < 25) tips.push('Add more detail and a real example.');
+  return { score: content + length + structure, tips };
+}
