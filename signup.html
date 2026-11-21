@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign up | Skillverse</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="signup">
+  <div class="auth-layout">
+    <section class="auth-hero">
+      <h1>Study like it<br>is a game.</h1>
+      <p>Turn notes into stories, explain concepts, win the interview.</p>
+    </section>
+    <section class="auth-panel">
+      <form id="signupForm" class="auth-form" novalidate>
+        <h2>Create your account</h2>
+        <p id="formError" class="form-error" hidden></p>
+        <label class="field"><span>Full name</span>
+          <input type="text" name="name" placeholder="Your name" autocomplete="name">
+        </label>
+        <label class="field"><span>Email</span>
+          <input type="email" name="email" placeholder="you@university.edu" autocomplete="email">
+        </label>
+        <label class="field"><span>Password</span>
+          <input type="password" name="password" placeholder="At least 8 characters" autocomplete="new-password">
+        </label>
+        <div class="field"><span>I am a</span>
+          <div class="chip-row">
+            <label class="chip"><input type="radio" name="role" value="student" checked><span>Student</span></label>
+            <label class="chip"><input type="radio" name="role" value="teacher"><span>Teacher / Mentor</span></label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign up</button>
+        <p class="auth-switch">Already have an account? <a href="login.html">Log in</a></p>
+      </form>
+    </section>
+  </div>
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>
