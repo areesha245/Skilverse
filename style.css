@@ -1,6 +1,59 @@
-/* Skillverse styles - colors from the Figma Style Guide */
+/* Skillverse styles - colors and type from the Figma Style Guide */
 :root {
   --primary: #6C4DFF; --secondary: #00B8D9; --accent: #FFB020;
-  --success: #22C55E; --error: #EF4444; --ink: #1F1B3A; --muted: #6B6890; --bg: #F6F4FF;
+  --success: #22C55E; --error: #EF4444; --ink: #1F1B3A; --muted: #6B6890;
+  --bg: #F6F4FF; --line: #E4E0F5; --white: #FFFFFF;
 }
+* { box-sizing: border-box; }
 body { margin: 0; font-family: Inter, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+.muted { color: var(--muted); }
+
+/* Buttons (Style Guide: primary, secondary) */
+.btn { display: inline-block; height: 44px; padding: 0 24px; line-height: 44px; border-radius: 10px;
+  font: 600 15px Inter, Arial, sans-serif; text-align: center; text-decoration: none; cursor: pointer; border: 2px solid var(--primary); }
+.btn-primary { background: var(--primary); color: var(--white); }
+.btn-secondary { background: var(--white); color: var(--primary); }
+.btn:disabled { background: #D9D6E8; color: #8C89A6; border-color: #D9D6E8; cursor: not-allowed; }
+
+/* Landing placeholder */
+.landing { padding: 48px; }
+
+/* Login / Signup */
+.auth-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+.auth-hero { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white);
+  display: flex; flex-direction: column; justify-content: center; padding: 80px; }
+.auth-hero h1 { font-size: 48px; line-height: 1.2; margin: 0 0 16px; }
+.auth-hero p { font-size: 18px; margin: 0; color: #EDE9FF; }
+.auth-panel { display: flex; align-items: center; justify-content: center; padding: 40px; }
+.auth-form { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 22px; }
+.auth-form h2 { font-size: 32px; margin: 0; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field > span { font-size: 13px; font-weight: 600; color: var(--muted); }
+.field input[type="text"], .field input[type="email"], .field input[type="password"] {
+  height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; background: var(--white); }
+.field input:focus { outline: 2px solid var(--primary); }
+.form-error { margin: 0; padding: 10px 14px; border-radius: 10px; background: #FEE2E2; color: var(--error); font-size: 14px; }
+.auth-switch { text-align: center; font-size: 14px; margin: 0; }
+.auth-switch a { color: var(--primary); font-weight: 600; text-decoration: none; }
+.chip-row { display: flex; gap: 10px; }
+.chip input { position: absolute; opacity: 0; }
+.chip span { display: inline-block; height: 34px; line-height: 32px; padding: 0 16px; border-radius: 17px;
+  border: 1px solid var(--line); background: var(--white); font-size: 13px; font-weight: 600; cursor: pointer; }
+.chip input:checked + span { background: var(--primary); border-color: var(--primary); color: var(--white); }
+.chip input:focus-visible + span { outline: 2px solid var(--secondary); }
+
+/* Dashboard (basic) */
+.dash { max-width: 1120px; margin: 0 auto; padding: 40px 24px; }
+.dash-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.dash-header h1 { font-size: 28px; margin: 0 0 6px; }
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 32px; }
+.card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+.card strong { font-size: 30px; }
+
+/* Mobile */
+@media (max-width: 800px) {
+  .auth-layout { grid-template-columns: 1fr; }
+  .auth-hero { padding: 40px 24px; min-height: 220px; }
+  .auth-hero h1 { font-size: 28px; }
+  .stat-grid { grid-template-columns: 1fr; }
+}
