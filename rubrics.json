@@ -1,1 +1,31 @@
-[]
+{
+  "concepts": [
+    {
+      "id": "photosynthesis", "name": "Photosynthesis",
+      "keyPoints": [
+        { "label": "Chlorophyll captures light energy", "keywords": ["chlorophyll", "sunlight", "light energy", "light"], "followUp": "What role does chlorophyll play?" },
+        { "label": "It happens in the chloroplasts", "keywords": ["chloroplast"], "followUp": "Where in the cell does photosynthesis happen?" },
+        { "label": "Carbon dioxide and water are the inputs", "keywords": ["carbon dioxide", "co2", "water"], "followUp": "Which raw materials does the plant take in?" },
+        { "label": "It produces glucose and oxygen", "keywords": ["glucose", "oxygen", "sugar"], "followUp": "What are the products, and why is oxygen released?" }
+      ]
+    },
+    {
+      "id": "recursion", "name": "Recursion",
+      "keyPoints": [
+        { "label": "A function calls itself", "keywords": ["calls itself", "call itself", "itself"], "followUp": "What does it mean for a function to call itself?" },
+        { "label": "A base case stops the calls", "keywords": ["base case", "stopping condition", "terminate", "stop"], "followUp": "Why is a base case needed?" },
+        { "label": "Each call solves a smaller problem", "keywords": ["smaller", "subproblem", "simpler", "reduce"], "followUp": "How does each call get closer to the base case?" },
+        { "label": "Calls are tracked on the call stack", "keywords": ["stack"], "followUp": "What happens on the call stack during recursion?" }
+      ]
+    },
+    {
+      "id": "tcpip", "name": "TCP/IP",
+      "keyPoints": [
+        { "label": "It is a layered protocol suite", "keywords": ["layer", "protocol"], "followUp": "What are the main layers of the model?" },
+        { "label": "IP addresses and routing deliver data", "keywords": ["ip address", "address", "routing", "route"], "followUp": "How does IP get packets to the right place?" },
+        { "label": "TCP gives reliable delivery", "keywords": ["reliable", "acknowledg", "retransmit", "handshake"], "followUp": "How does TCP make delivery reliable?" },
+        { "label": "Data is split into packets", "keywords": ["packet", "segment", "fragment"], "followUp": "Why is data split into packets?" }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 // storage.js - the ONLY module that touches localStorage and JSON files (Data Tier)
-const KEYS = { users: 'sv_users', session: 'sv_session', usage: 'sv_usage', sessions: 'sv_sessions' };
+const KEYS = { users: 'sv_users', session: 'sv_session', usage: 'sv_usage', sessions: 'sv_sessions', reports: 'sv_reports' };
 
 export function read(key, fallback) {
   try {
@@ -47,6 +47,20 @@ export function saveSession(session) {
   write(KEYS.sessions, all);
 }
 export function getSessions(userId) { return read(KEYS.sessions, []).filter(s => s.userId === userId); }
+
+// ---- AI answer reports (sent to the admin) ----
+export function saveReport(report) {
+  const all = read(KEYS.reports, []);
+  all.push(report);
+  write(KEYS.reports, all);
+}
+
+// ---- JSON data files ----
+export async function loadRubrics() {
+  const response = await fetch('data/rubrics.json');
+  if (!response.ok) throw new Error('Could not load rubrics');
+  return response.json();
+}
 
 // ---- to be written later ----
 export async function loadQuestions(role, level) { /* TODO: fetch('data/questions.json') */ }

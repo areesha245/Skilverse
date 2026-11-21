@@ -1,6 +1,7 @@
 // ui.js - DOM rendering and event listeners (no inline JS in HTML)
 import { register, login, logout, getCurrentUser } from './auth.js';
-import { getDailyUsage, getSessions } from './storage.js';
+import { getDailyUsage, getSessions, loadRubrics, saveReport } from './storage.js';
+import { submitExplanation } from './teachBack.js';
 import { DAILY_LIMIT } from './aiManager.js';
 import { BADGES, XP_PER_LEVEL, levelFromXp, xpProgress, getProfile } from './gamification.js';
 
@@ -90,17 +91,88 @@ function initDashboard() {
   const bar = document.getElementById('xpBar');
   bar.max = XP_PER_LEVEL;
   bar.value = progress.into;
-  setText('aiLeft', `AI requests left: ${Math.max(0, DAILY_LIMIT - getDailyUsage(user.id))}/${DAILY_LIMIT}`);
 
+  initShell(user);
   renderBadges(user);
   renderSessions(user.id);
+}
+
+// Shared by every logged-in page: AI requests pill and Log out button
+function refreshAiLeft(user) {
+  setText('aiLeft', `AI requests left: ${Math.max(0, DAILY_LIMIT - getDailyUsage(user.id))}/${DAILY_LIMIT}`);
+}
+function initShell(user) {
+  refreshAiLeft(user);
   document.getElementById('logoutBtn').addEventListener('click', () => {
     logout();
     window.location.href = 'login.html';
   });
 }
 
+function renderList(id, items) {
+  const list = document.getElementById(id);
+  list.replaceChildren();
+  items.forEach(text => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    list.append(li);
+  });
+}
+
+function renderTeachBackResult(result) {
+  setText('scoreValue', `${result.score}%`);
+  document.getElementById('scoreBar').value = result.score;
+  renderList('gapList', result.gaps.length ? result.gaps : ['None, great explanation!']);
+  renderList('followUpList', result.followUps);
+  document.getElementById('followUps').hidden = false;
+  let reward = `+${result.xpEarned} XP`;
+  if (result.leveledUp) reward += ' - Level up!';
+  if (result.newBadges.length) reward += ` - New badge: ${result.newBadges.map(b => b.name).join(', ')}`;
+  setText('rewardText', reward);
+}
+
+async function initTeachBack() {
+  const user = getCurrentUser();
+  if (!user) { window.location.href = 'login.html'; return; }
+  initShell(user);
+
+  let concepts;
+  try { concepts = (await loadRubrics()).concepts; }
+  catch (error) { showMessage('Could not load concepts. Please refresh the page.'); return; }
+
+  const form = document.getElementById('teachForm');
+  const reportBtn = document.getElementById('reportBtn');
+  concepts.forEach((concept, index) => {
+    const label = document.createElement('label');
+    label.className = 'chip';
+    const input = document.createElement('input');
+    input.type = 'radio'; input.name = 'concept'; input.value = concept.id; input.checked = index === 0;
+    const span = document.createElement('span');
+    span.textContent = concept.name;
+    label.append(input, span);
+    document.getElementById('conceptList').append(label);
+  });
+
+  let last = null; // the latest concept and result, used by "Report AI answer"
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    showMessage('');
+    const concept = concepts.find(c => c.id === form.elements.concept.value);
+    const result = submitExplanation(concept, form.elements.explanation.value);
+    refreshAiLeft(user);
+    if (!result.ok) { showMessage(result.error); return; }
+    renderTeachBackResult(result);
+    last = { concept, result };
+    reportBtn.disabled = false;
+  });
+  reportBtn.addEventListener('click', () => {
+    saveReport({ userId: user.id, concept: last.concept.id, score: last.result.score, date: new Date().toISOString() });
+    setText('rewardText', 'Thanks! This answer was reported for review.');
+    reportBtn.disabled = true;
+  });
+}
+
 // Each HTML page sets data-page on <body>; run the matching setup
-const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard };
+const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard, teachback: initTeachBack };
 const init = pages[document.body.dataset.page];
 if (init) init();

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teach-Back Arena | Skillverse</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="teachback">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-logo"></span>Skillverse</div>
+      <nav class="nav">
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="story-realm.html">Story Realm</a>
+        <a class="nav-link active" href="teach-back.html">Teach-Back Arena</a>
+        <a class="nav-link" href="interview-room.html">Interview Room</a>
+        <a class="nav-link" href="progress.html">Progress</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h1>Teach-Back Arena</h1>
+          <p class="muted">Explain it like you are teaching a friend.</p>
+        </div>
+        <div class="top-actions">
+          <span id="aiLeft" class="pill"></span>
+          <button id="logoutBtn" class="btn btn-secondary" type="button">Log out</button>
+        </div>
+      </header>
+
+      <div class="two-col">
+        <section class="card">
+          <form id="teachForm" class="stack" novalidate>
+            <p id="formError" class="form-error" hidden></p>
+            <div class="field"><span>Concept</span><div id="conceptList" class="chip-row"></div></div>
+            <label class="field"><span>Your explanation</span>
+              <textarea name="explanation" rows="9" placeholder="Type your explanation..."></textarea>
+            </label>
+            <button type="submit" class="btn btn-primary">Submit explanation</button>
+          </form>
+          <div id="followUps" hidden>
+            <h2>AI follow-up questions</h2>
+            <ol id="followUpList"></ol>
+          </div>
+        </section>
+
+        <aside class="card">
+          <h2>Clarity score</h2>
+          <strong id="scoreValue">--</strong>
+          <progress id="scoreBar" value="0" max="100"></progress>
+          <h3>Gaps found</h3>
+          <ul id="gapList"><li class="muted">Submit an explanation to see feedback.</li></ul>
+          <p id="rewardText" class="muted"></p>
+          <button id="reportBtn" class="btn btn-secondary" type="button" disabled>Report AI answer</button>
+        </aside>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>
