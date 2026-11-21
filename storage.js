@@ -1,5 +1,5 @@
 // storage.js - the ONLY module that touches localStorage and JSON files (Data Tier)
-const KEYS = { users: 'sv_users', session: 'sv_session' };
+const KEYS = { users: 'sv_users', session: 'sv_session', usage: 'sv_usage', sessions: 'sv_sessions' };
 
 export function read(key, fallback) {
   try {
@@ -14,12 +14,39 @@ export function write(key, value) { localStorage.setItem(key, JSON.stringify(val
 // ---- users and session ----
 export function getUsers() { return read(KEYS.users, []); }
 export function saveUsers(users) { write(KEYS.users, users); }
+export function getUserById(id) { return getUsers().find(u => u.id === id) || null; }
+export function updateUser(id, changes) {
+  const users = getUsers();
+  const index = users.findIndex(u => u.id === id);
+  if (index === -1) return null;
+  users[index] = { ...users[index], ...changes };
+  saveUsers(users);
+  return users[index];
+}
 export function getSessionUserId() { return read(KEYS.session, null); }
 export function setSessionUserId(id) { write(KEYS.session, id); }
 export function clearSession() { localStorage.removeItem(KEYS.session); }
 
+// ---- daily AI usage (resets every day) ----
+const today = () => new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD, local time
+export function getDailyUsage(userId) {
+  const entry = read(KEYS.usage, {})[userId];
+  return entry && entry.date === today() ? entry.count : 0;
+}
+export function updateUsage(userId) {
+  const all = read(KEYS.usage, {});
+  all[userId] = { date: today(), count: getDailyUsage(userId) + 1 };
+  write(KEYS.usage, all);
+  return all[userId].count;
+}
+
+// ---- learning sessions (history) ----
+export function saveSession(session) {
+  const all = read(KEYS.sessions, []);
+  all.push(session);
+  write(KEYS.sessions, all);
+}
+export function getSessions(userId) { return read(KEYS.sessions, []).filter(s => s.userId === userId); }
+
 // ---- to be written later ----
-export function getDailyUsage(userId) { /* TODO */ }
-export function updateUsage(userId) { /* TODO */ }
-export function saveSession(session) { /* TODO */ }
 export async function loadQuestions(role, level) { /* TODO: fetch('data/questions.json') */ }
