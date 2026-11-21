@@ -121,3 +121,9 @@ progress::-moz-progress-bar { background: var(--primary); }
 .room-next { border-left-color: var(--primary); }
 .room-next span { color: var(--primary); }
 @media (max-width: 800px) { .room-grid { grid-template-columns: 1fr; } }
+
+/* Story Realm */
+.story-cols { display: grid; grid-template-columns: 1fr 1.6fr; gap: 24px; margin-top: 32px; align-items: start; }
+.option { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); cursor: pointer; font-size: 15px; }
+.option:has(input:checked) { border-color: var(--primary); background: #ECE8FF; }
+@media (max-width: 800px) { .story-cols { grid-template-columns: 1fr; } }

@@ -2,6 +2,7 @@
 import { register, login, logout, getCurrentUser } from './auth.js';
 import { getDailyUsage, getSessions, loadRubrics, loadRoles, saveReport } from './storage.js';
 import { submitExplanation } from './teachBack.js';
+import { generateStory, answerScene } from './storyRealm.js';
 import { startRoom, submitAnswer, useHint, THRESHOLDS } from './interviewRoom.js';
 import { DAILY_LIMIT } from './aiManager.js';
 import { BADGES, XP_PER_LEVEL, levelFromXp, xpProgress, getProfile, getClearedRooms } from './gamification.js';
@@ -280,7 +281,81 @@ async function initInterview() {
   });
 }
 
+// ---------- Story Realm ----------
+function showScene(info) {
+  document.getElementById('sceneCard').hidden = false;
+  document.getElementById('sceneFeedback').hidden = true;
+  document.getElementById('answerBtn').disabled = false;
+  setText('sceneCount', `Scene ${info.number} of ${info.total}`);
+  setText('sceneNarrative', info.scene.narrative);
+  setText('sceneQuestion', info.scene.question);
+  const list = document.getElementById('optionList');
+  list.replaceChildren();
+  info.scene.options.forEach((option, index) => {
+    const label = document.createElement('label');
+    label.className = 'option';
+    const input = document.createElement('input');
+    input.type = 'radio'; input.name = 'choice'; input.value = index;
+    const span = document.createElement('span');
+    span.textContent = option;
+    label.append(input, span);
+    list.append(label);
+  });
+}
+
+function showSummary(summary) {
+  document.getElementById('sceneCard').hidden = true;
+  document.getElementById('summaryCard').hidden = false;
+  setText('summaryTitle', 'Story complete!');
+  setText('summaryText', `You answered ${summary.score} of ${summary.total} scenes correctly.`);
+  renderList('weakList', summary.weak.length ? summary.weak : ['No weak topics. Great job!']);
+  let reward = `+${summary.xpEarned} XP`;
+  if (summary.leveledUp) reward += ' - Level up!';
+  if (summary.newBadges.length) reward += ` - New badge: ${summary.newBadges.map(b => b.name).join(', ')}`;
+  setText('summaryReward', reward);
+}
+
+function initStory() {
+  const user = getCurrentUser();
+  if (!user) { window.location.href = 'login.html'; return; }
+  initShell(user);
+
+  const storyForm = document.getElementById('storyForm');
+  const sceneForm = document.getElementById('sceneForm');
+  let pending = null; // what the Continue button shows next: the next scene or the summary
+
+  storyForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    showMessage('');
+    const result = generateStory(storyForm.elements.topic.value, storyForm.elements.notes.value);
+    refreshAiLeft(user);
+    if (!result.ok) { showMessage(result.error); return; }
+    document.getElementById('summaryCard').hidden = true;
+    showScene(result);
+  });
+
+  sceneForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    showMessage('');
+    const raw = sceneForm.elements.choice.value; // '' when nothing is selected
+    const result = answerScene(raw === '' ? null : Number(raw));
+    if (!result.ok) { showMessage(result.error); return; }
+    const { feedback } = result;
+    setText('feedbackTitle', feedback.correct ? 'Correct! The scroll glows.' : `Recovery scene: the missing word was "${feedback.answer}"`);
+    setText('feedbackText', feedback.correct ? feedback.explanation : `The scroll reveals: "${feedback.explanation}"`);
+    document.getElementById('answerBtn').disabled = true;
+    document.getElementById('sceneFeedback').hidden = false;
+    setText('continueBtn', result.finished ? 'See results' : 'Continue');
+    pending = result.finished ? { summary: result.summary } : { next: result.next };
+  });
+
+  document.getElementById('continueBtn').addEventListener('click', () => {
+    if (pending.summary) showSummary(pending.summary);
+    else showScene(pending.next);
+  });
+}
+
 // Each HTML page sets data-page on <body>; run the matching setup
-const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard, teachback: initTeachBack, interview: initInterview };
+const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard, teachback: initTeachBack, interview: initInterview, story: initStory };
 const init = pages[document.body.dataset.page];
 if (init) init();

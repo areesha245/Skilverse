@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Story Realm | Skillverse</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="story">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-logo"></span>Skillverse</div>
+      <nav class="nav">
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link active" href="story-realm.html">Story Realm</a>
+        <a class="nav-link" href="teach-back.html">Teach-Back Arena</a>
+        <a class="nav-link" href="interview-room.html">Interview Room</a>
+        <a class="nav-link" href="progress.html">Progress</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h1>Story Realm</h1>
+          <p class="muted">Turn your notes into an interactive story.</p>
+        </div>
+        <div class="top-actions">
+          <span id="aiLeft" class="pill"></span>
+          <button id="logoutBtn" class="btn btn-secondary" type="button">Log out</button>
+        </div>
+      </header>
+
+      <div class="story-cols">
+        <section class="card">
+          <h2>Your study material</h2>
+          <form id="storyForm" class="stack" novalidate>
+            <p id="formError" class="form-error" hidden></p>
+            <label class="field"><span>Topic</span>
+              <input type="text" name="topic" placeholder="e.g. Object-Oriented Programming">
+            </label>
+            <label class="field"><span>Your notes</span>
+              <textarea name="notes" rows="12" placeholder="Paste your notes here (at least 30 words)..."></textarea>
+            </label>
+            <button type="submit" class="btn btn-primary">Generate story</button>
+            <p class="muted small">Questions are made only from your notes.</p>
+          </form>
+        </section>
+
+        <div class="stack">
+          <section id="sceneCard" class="card stack" hidden>
+            <span id="sceneCount" class="muted small"></span>
+            <p id="sceneNarrative" class="muted"></p>
+            <h2 id="sceneQuestion"></h2>
+            <form id="sceneForm" class="stack" novalidate>
+              <div id="optionList" class="stack"></div>
+              <button id="answerBtn" type="submit" class="btn btn-primary">Submit answer</button>
+            </form>
+            <div id="sceneFeedback" class="stack" hidden>
+              <h3 id="feedbackTitle"></h3>
+              <p id="feedbackText"></p>
+              <div><button id="continueBtn" type="button" class="btn btn-secondary">Continue</button></div>
+            </div>
+          </section>
+
+          <section id="summaryCard" class="card stack" hidden>
+            <h2 id="summaryTitle"></h2>
+            <p id="summaryText"></p>
+            <h3>Weak topics to review</h3>
+            <ul id="weakList"></ul>
+            <p id="summaryReward" class="muted"></p>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>
