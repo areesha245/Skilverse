@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skillverse Tests</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="tests">
+  <main class="dash">
+    <header class="topbar">
+      <div>
+        <h1>Skillverse white-box tests</h1>
+        <p class="muted">These tests run the real code. Your own data is backed up first and restored after the run.</p>
+      </div>
+      <div class="top-actions"><button id="runBtn" class="btn btn-primary" type="button">Run tests again</button></div>
+    </header>
+    <section class="card section-gap">
+      <h2 id="summary">Running tests...</h2>
+      <div class="test-row history-head"><span>ID</span><span>Technique</span><span>What is tested</span><span>Result</span></div>
+      <div id="results"></div>
+    </section>
+  </main>
+  <script type="module" src="js/tests.js"></script>
+</body>
+</html>
