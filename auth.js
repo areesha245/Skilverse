@@ -57,3 +57,16 @@ export function getCurrentUser() {
   const id = getSessionUserId();
   return id ? getUsers().find(u => u.id === id) || null : null;
 }
+
+// Demo admin account (prototype only): created once so the admin panel can be opened
+export const ADMIN_EMAIL = 'admin@skillverse.com';
+const ADMIN_PASSWORD = 'Admin@123';
+export async function ensureAdminAccount() {
+  const users = getUsers();
+  if (users.some(u => u.role === 'admin')) return;
+  users.push({
+    id: 'admin1', name: 'Admin', email: ADMIN_EMAIL, passwordHash: await hashPassword(ADMIN_PASSWORD),
+    role: 'admin', xp: 0, level: 1, streak: 0, createdAt: new Date().toISOString()
+  });
+  saveUsers(users);
+}

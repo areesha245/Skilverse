@@ -141,3 +141,6 @@ progress::-moz-progress-bar { background: var(--primary); }
 @media (max-width: 800px) {
   .history-row, .share-row { grid-template-columns: 1fr 1fr; }
 }
+
+/* Admin panel */
+.admin-row { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }

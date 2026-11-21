@@ -1,11 +1,12 @@
 // ui.js - DOM rendering and event listeners (no inline JS in HTML)
-import { register, login, logout, getCurrentUser } from './auth.js';
+import { register, login, logout, getCurrentUser, ensureAdminAccount } from './auth.js';
 import { getDailyUsage, getSessions, loadRubrics, loadRoles, saveReport } from './storage.js';
 import { submitExplanation } from './teachBack.js';
 import { generateStory, answerScene } from './storyRealm.js';
 import { getHistory, averagePercent, weakTopicCounts, sessionPercent, isSharing, shareProgress, stopSharing, getSharedSummaries } from './progress.js';
 import { startRoom, submitAnswer, useHint, THRESHOLDS } from './interviewRoom.js';
-import { DAILY_LIMIT } from './aiManager.js';
+import { getDailyLimit } from './aiManager.js';
+import { updateDailyLimit, getBadgeList, getReportList } from './admin.js';
 import { BADGES, XP_PER_LEVEL, levelFromXp, xpProgress, getProfile, getClearedRooms } from './gamification.js';
 
 export function showMessage(text) {
@@ -15,7 +16,8 @@ export function showMessage(text) {
   box.hidden = text === '';
 }
 
-function initLogin() {
+async function initLogin() {
+  await ensureAdminAccount();
   if (getCurrentUser()) { window.location.href = 'dashboard.html'; return; }
   const form = document.getElementById('loginForm');
   form.addEventListener('submit', async (event) => {
@@ -26,7 +28,8 @@ function initLogin() {
   });
 }
 
-function initSignup() {
+async function initSignup() {
+  await ensureAdminAccount();
   const form = document.getElementById('signupForm');
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -35,6 +38,11 @@ function initSignup() {
     if (result.ok) window.location.href = 'dashboard.html';
     else showMessage(result.error);
   });
+}
+
+// Where each kind of user belongs after logging in
+function roleHome(user) {
+  return { teacher: 'shared-progress.html', admin: 'admin.html' }[user.role] || 'dashboard.html';
 }
 
 function setText(id, value) {
@@ -86,7 +94,7 @@ function renderSessions(userId) {
 function initDashboard() {
   const found = getCurrentUser();
   if (!found) { window.location.href = 'login.html'; return; } // not logged in
-  if (found.role === 'teacher') { window.location.href = 'shared-progress.html'; return; }
+  if (roleHome(found) !== 'dashboard.html') { window.location.href = roleHome(found); return; }
   const user = getProfile(found);
   const progress = xpProgress(user.xp);
 
@@ -106,7 +114,8 @@ function initDashboard() {
 
 // Shared by every logged-in page: AI requests pill and Log out button
 function refreshAiLeft(user) {
-  setText('aiLeft', `AI requests left: ${Math.max(0, DAILY_LIMIT - getDailyUsage(user.id))}/${DAILY_LIMIT}`);
+  const limit = getDailyLimit();
+  setText('aiLeft', `AI requests left: ${Math.max(0, limit - getDailyUsage(user.id))}/${limit}`);
 }
 function initShell(user) {
   refreshAiLeft(user);
@@ -441,7 +450,7 @@ function refreshShareState(user) {
 function initProgress() {
   const found = getCurrentUser();
   if (!found) { window.location.href = 'login.html'; return; }
-  if (found.role === 'teacher') { window.location.href = 'shared-progress.html'; return; }
+  if (roleHome(found) !== 'dashboard.html') { window.location.href = roleHome(found); return; }
   initShell(found);
 
   const all = getHistory(found.id).reverse(); // oldest first, used for stats and chart
@@ -474,7 +483,7 @@ function initProgress() {
 function initShared() {
   const found = getCurrentUser();
   if (!found) { window.location.href = 'login.html'; return; }
-  if (found.role !== 'teacher') { window.location.href = 'dashboard.html'; return; } // students cannot open this page
+  if (found.role !== 'teacher') { window.location.href = roleHome(found); return; } // only teachers can open this page
   initShell(found);
 
   const list = document.getElementById('shareList');
@@ -493,7 +502,41 @@ function initShared() {
   ])));
 }
 
+// ---------- Admin panel ----------
+function initAdmin() {
+  const found = getCurrentUser();
+  if (!found) { window.location.href = 'login.html'; return; }
+  if (found.role !== 'admin') { window.location.href = roleHome(found); return; } // only the admin can open this page
+  initShell(found);
+
+  const form = document.getElementById('limitForm');
+  form.elements.limit.value = getDailyLimit();
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const raw = form.elements.limit.value.trim();
+    const result = updateDailyLimit(raw === '' ? NaN : Number(raw));
+    if (!result.ok) { showMessage(result.error); setText('limitStatus', ''); return; }
+    showMessage('');
+    setText('limitStatus', `Saved. Students now get ${result.limit} AI requests per day.`);
+  });
+
+  const badges = document.getElementById('badgeAdminList');
+  getBadgeList().forEach(b => badges.append(makeRow('admin-row', [b.name, b.description])));
+
+  const reports = document.getElementById('reportList');
+  const list = getReportList();
+  if (list.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'muted';
+    empty.textContent = 'No answers have been reported.';
+    reports.append(empty);
+    return;
+  }
+  reports.append(makeRow('history-row history-head', ['Student', 'Concept', 'Score', 'Date']));
+  list.forEach(r => reports.append(makeRow('history-row', [r.student, r.concept, `${r.score}%`, r.date])));
+}
+
 // Each HTML page sets data-page on <body>; run the matching setup
-const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard, teachback: initTeachBack, interview: initInterview, story: initStory, progress: initProgress, shared: initShared };
+const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard, teachback: initTeachBack, interview: initInterview, story: initStory, progress: initProgress, shared: initShared, admin: initAdmin };
 const init = pages[document.body.dataset.page];
 if (init) init();

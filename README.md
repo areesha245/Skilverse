@@ -15,6 +15,10 @@ AI-style, game-based learning platform (academic prototype). Students turn notes
 - `js/` modules: auth, storage, ui, aiManager, gamification, storyRealm, teachBack, interviewRoom, progress, admin
 - `data/` JSON: questions, rubrics, badges
 
+## Demo accounts
+- Students and teachers: use the Sign up page.
+- Admin (prototype only): `admin@skillverse.com` / `Admin@123`
+
 ## Team
 - Areesha Matloob
 - Breera

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel | Skillverse</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="admin">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-logo"></span>Skillverse</div>
+      <nav class="nav">
+        <a class="nav-link active" href="admin.html">Admin Panel</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h1>Admin Panel</h1>
+          <p class="muted">Manage AI limits, badges and reported answers.</p>
+        </div>
+        <div class="top-actions">
+          <button id="logoutBtn" class="btn btn-secondary" type="button">Log out</button>
+        </div>
+      </header>
+
+      <section class="card section-gap">
+        <h2>Daily AI limit</h2>
+        <form id="limitForm" class="stack" novalidate>
+          <p id="formError" class="form-error" hidden></p>
+          <label class="field"><span>Requests per student per day (1 to 100)</span>
+            <input type="text" name="limit" inputmode="numeric">
+          </label>
+          <p id="limitStatus" class="muted small"></p>
+          <div><button type="submit" class="btn btn-primary">Save limit</button></div>
+        </form>
+      </section>
+
+      <section class="card section-gap">
+        <h2>Badges</h2>
+        <div id="badgeAdminList"></div>
+      </section>
+
+      <section class="card section-gap">
+        <h2>Reported AI answers</h2>
+        <div id="reportList"></div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>

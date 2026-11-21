@@ -1,8 +1,14 @@
 // aiManager.js - SIMULATED AI: rubric-based scoring and follow-up questions, daily limit
-import { getDailyUsage, updateUsage } from './storage.js';
+import { getDailyUsage, updateUsage, getSettings } from './storage.js';
 
-export const DAILY_LIMIT = 25;
-const LIMIT_ERROR = `Daily AI limit reached (${DAILY_LIMIT}). Please come back tomorrow.`;
+export const DEFAULT_DAILY_LIMIT = 25;
+
+// The admin can change the limit; fall back to the default if nothing valid is saved
+export function getDailyLimit() {
+  const saved = getSettings().dailyLimit;
+  return Number.isInteger(saved) && saved > 0 ? saved : DEFAULT_DAILY_LIMIT;
+}
+const limitError = () => `Daily AI limit reached (${getDailyLimit()}). Please come back tomorrow.`;
 
 // Rubric: Accuracy 40 + Completeness 20 + Clarity 40 = 100
 export function scoreExplanation(concept, text) {
@@ -36,8 +42,8 @@ export function scoreExplanation(concept, text) {
 
 // Checks the daily limit, scores the answer, then counts the request
 export function requestFeedback(userId, concept, text) {
-  if (getDailyUsage(userId) >= DAILY_LIMIT) {
-    return { ok: false, limitReached: true, error: LIMIT_ERROR };
+  if (getDailyUsage(userId) >= getDailyLimit()) {
+    return { ok: false, limitReached: true, error: limitError() };
   }
   const result = scoreExplanation(concept, text);
   updateUsage(userId);
@@ -109,7 +115,7 @@ export function buildStory(topic, notes, random = Math.random) {
 
 // Checks the daily limit, builds the story, then counts the request
 export function requestStory(userId, topic, notes) {
-  if (getDailyUsage(userId) >= DAILY_LIMIT) return { ok: false, limitReached: true, error: LIMIT_ERROR };
+  if (getDailyUsage(userId) >= getDailyLimit()) return { ok: false, limitReached: true, error: limitError() };
   const story = buildStory(topic, notes);
   if (!story.ok) return story; // a failed build does not use up a request
   updateUsage(userId);
