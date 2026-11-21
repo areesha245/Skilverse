@@ -1,5 +1,8 @@
 // ui.js - DOM rendering and event listeners (no inline JS in HTML)
 import { register, login, logout, getCurrentUser } from './auth.js';
+import { getDailyUsage, getSessions } from './storage.js';
+import { DAILY_LIMIT } from './aiManager.js';
+import { BADGES, XP_PER_LEVEL, levelFromXp, xpProgress, getProfile } from './gamification.js';
 
 export function showMessage(text) {
   const box = document.getElementById('formError');
@@ -30,13 +33,67 @@ function initSignup() {
   });
 }
 
+function setText(id, value) { document.getElementById(id).textContent = value; }
+
+// One circle per badge; earned badges are highlighted
+function renderBadges(user) {
+  const list = document.getElementById('badgeList');
+  list.replaceChildren();
+  BADGES.forEach(badge => {
+    const item = document.createElement('div');
+    item.className = 'badge' + (user.badges.includes(badge.id) ? ' badge-earned' : '');
+    item.title = badge.description;
+    const icon = document.createElement('span');
+    icon.className = 'badge-icon';
+    const name = document.createElement('span');
+    name.textContent = badge.name;
+    item.append(icon, name);
+    list.append(item);
+  });
+}
+
+// Shows the 3 newest sessions, or a friendly message when there are none
+function renderSessions(userId) {
+  const list = document.getElementById('sessionList');
+  list.replaceChildren();
+  const sessions = getSessions(userId).slice(-3).reverse();
+  if (sessions.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'muted';
+    empty.textContent = 'No sessions yet. Start a zone to begin!';
+    list.append(empty);
+    return;
+  }
+  sessions.forEach(session => {
+    const row = document.createElement('div');
+    row.className = 'session-row';
+    [session.title, session.result, session.date].forEach(value => {
+      const cell = document.createElement('span');
+      cell.textContent = value;
+      row.append(cell);
+    });
+    list.append(row);
+  });
+}
+
 function initDashboard() {
-  const user = getCurrentUser();
-  if (!user) { window.location.href = 'login.html'; return; } // not logged in
-  document.getElementById('userName').textContent = user.name;
-  document.getElementById('userLevel').textContent = user.level;
-  document.getElementById('userXp').textContent = user.xp;
-  document.getElementById('userStreak').textContent = user.streak;
+  const found = getCurrentUser();
+  if (!found) { window.location.href = 'login.html'; return; } // not logged in
+  const user = getProfile(found);
+  const progress = xpProgress(user.xp);
+
+  setText('userName', user.name);
+  setText('userLevel', levelFromXp(user.xp));
+  setText('userXp', user.xp);
+  setText('userStreak', user.streak);
+  setText('xpText', `${progress.into} / ${XP_PER_LEVEL} XP to next level`);
+  const bar = document.getElementById('xpBar');
+  bar.max = XP_PER_LEVEL;
+  bar.value = progress.into;
+  setText('aiLeft', `AI requests left: ${Math.max(0, DAILY_LIMIT - getDailyUsage(user.id))}/${DAILY_LIMIT}`);
+
+  renderBadges(user);
+  renderSessions(user.id);
   document.getElementById('logoutBtn').addEventListener('click', () => {
     logout();
     window.location.href = 'login.html';
