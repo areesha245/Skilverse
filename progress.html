@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Progress | Skillverse</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="progress">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-logo"></span>Skillverse</div>
+      <nav class="nav">
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="story-realm.html">Story Realm</a>
+        <a class="nav-link" href="teach-back.html">Teach-Back Arena</a>
+        <a class="nav-link" href="interview-room.html">Interview Room</a>
+        <a class="nav-link active" href="progress.html">Progress</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h1>Progress and History</h1>
+          <p class="muted">Your sessions, scores and weak topics.</p>
+        </div>
+        <div class="top-actions">
+          <span id="aiLeft" class="pill"></span>
+          <button id="logoutBtn" class="btn btn-secondary" type="button">Log out</button>
+        </div>
+      </header>
+
+      <section class="stat-grid">
+        <div class="card"><span class="muted">Sessions</span><strong id="statSessions"></strong></div>
+        <div class="card"><span class="muted">Average score</span><strong id="statAverage"></strong></div>
+        <div class="card"><span class="muted">Weak topics</span><strong id="statWeak"></strong></div>
+      </section>
+
+      <div class="two-col">
+        <section class="card">
+          <h2>Score trend</h2>
+          <div id="trendChart"></div>
+        </section>
+        <section class="card">
+          <h2>Weak topics</h2>
+          <ul id="weakList"></ul>
+        </section>
+      </div>
+
+      <section class="card section-gap">
+        <div class="panel-head">
+          <h2>Session history</h2>
+          <select id="zoneFilter" class="select" aria-label="Filter by zone">
+            <option value="all">All zones</option>
+            <option value="story">Story Realm</option>
+            <option value="teachBack">Teach-Back</option>
+            <option value="interview">Interview Room</option>
+          </select>
+        </div>
+        <div id="historyList"></div>
+      </section>
+
+      <section class="card section-gap">
+        <h2>Share with my teacher</h2>
+        <p class="muted">Teachers only see a short summary (average score and weak topics) and only after you share it.</p>
+        <p id="shareStatus" class="small"></p>
+        <p id="shareError" class="form-error" hidden></p>
+        <div class="btn-row">
+          <button id="shareBtn" class="btn btn-primary" type="button">Share summary</button>
+          <button id="stopShareBtn" class="btn btn-secondary" type="button">Stop sharing</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>

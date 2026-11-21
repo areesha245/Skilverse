@@ -1,5 +1,5 @@
 // storage.js - the ONLY module that touches localStorage and JSON files (Data Tier)
-const KEYS = { users: 'sv_users', session: 'sv_session', usage: 'sv_usage', sessions: 'sv_sessions', reports: 'sv_reports' };
+const KEYS = { users: 'sv_users', session: 'sv_session', usage: 'sv_usage', sessions: 'sv_sessions', reports: 'sv_reports', shares: 'sv_shares' };
 
 export function read(key, fallback) {
   try {
@@ -54,6 +54,14 @@ export function saveReport(report) {
   all.push(report);
   write(KEYS.reports, all);
 }
+
+// ---- progress summaries shared with teachers (one per student) ----
+export function getShares() { return read(KEYS.shares, []); }
+export function saveShare(entry) {
+  const others = getShares().filter(share => share.userId !== entry.userId); // replaces the old summary
+  write(KEYS.shares, [...others, entry]);
+}
+export function removeShare(userId) { write(KEYS.shares, getShares().filter(share => share.userId !== userId)); }
 
 // ---- JSON data files ----
 export async function loadRubrics() {

@@ -3,6 +3,7 @@ import { register, login, logout, getCurrentUser } from './auth.js';
 import { getDailyUsage, getSessions, loadRubrics, loadRoles, saveReport } from './storage.js';
 import { submitExplanation } from './teachBack.js';
 import { generateStory, answerScene } from './storyRealm.js';
+import { getHistory, averagePercent, weakTopicCounts, sessionPercent, isSharing, shareProgress, stopSharing, getSharedSummaries } from './progress.js';
 import { startRoom, submitAnswer, useHint, THRESHOLDS } from './interviewRoom.js';
 import { DAILY_LIMIT } from './aiManager.js';
 import { BADGES, XP_PER_LEVEL, levelFromXp, xpProgress, getProfile, getClearedRooms } from './gamification.js';
@@ -36,7 +37,10 @@ function initSignup() {
   });
 }
 
-function setText(id, value) { document.getElementById(id).textContent = value; }
+function setText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value; // some pages do not have every element
+}
 
 // One circle per badge; earned badges are highlighted
 function renderBadges(user) {
@@ -82,6 +86,7 @@ function renderSessions(userId) {
 function initDashboard() {
   const found = getCurrentUser();
   if (!found) { window.location.href = 'login.html'; return; } // not logged in
+  if (found.role === 'teacher') { window.location.href = 'shared-progress.html'; return; }
   const user = getProfile(found);
   const progress = xpProgress(user.xp);
 
@@ -355,7 +360,140 @@ function initStory() {
   });
 }
 
+// ---------- Progress and Share Progress ----------
+const ZONE_NAMES = { story: 'Story Realm', teachBack: 'Teach-Back', interview: 'Interview Room' };
+
+function makeRow(className, values) {
+  const row = document.createElement('div');
+  row.className = className;
+  values.forEach(value => {
+    const cell = document.createElement('span');
+    cell.textContent = value;
+    row.append(cell);
+  });
+  return row;
+}
+
+// Line chart drawn with SVG (last 10 sessions, oldest to newest)
+function renderTrend(sessions) {
+  const holder = document.getElementById('trendChart');
+  holder.replaceChildren();
+  const values = sessions.map(sessionPercent).filter(v => v !== null).slice(-10);
+  if (values.length < 2) {
+    const note = document.createElement('p');
+    note.className = 'muted';
+    note.textContent = 'Complete at least 2 sessions to see your trend.';
+    holder.append(note);
+    return;
+  }
+  const ns = 'http://www.w3.org/2000/svg';
+  const width = 600, height = 220, pad = 24;
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('class', 'chart');
+  [0, 50, 100].forEach(level => {
+    const y = height - pad - (level / 100) * (height - 2 * pad);
+    const grid = document.createElementNS(ns, 'line');
+    grid.setAttribute('x1', pad); grid.setAttribute('x2', width - pad);
+    grid.setAttribute('y1', y); grid.setAttribute('y2', y);
+    grid.setAttribute('class', 'chart-grid');
+    svg.append(grid);
+  });
+  const points = values.map((value, i) => [
+    pad + i * (width - 2 * pad) / (values.length - 1),
+    height - pad - (value / 100) * (height - 2 * pad)
+  ]);
+  const line = document.createElementNS(ns, 'polyline');
+  line.setAttribute('points', points.map(p => p.join(',')).join(' '));
+  line.setAttribute('class', 'chart-line');
+  svg.append(line);
+  points.forEach(([x, y]) => {
+    const dot = document.createElementNS(ns, 'circle');
+    dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', 5);
+    dot.setAttribute('class', 'chart-dot');
+    svg.append(dot);
+  });
+  holder.append(svg);
+}
+
+function renderHistory(userId, zone) {
+  const list = document.getElementById('historyList');
+  list.replaceChildren();
+  const sessions = getHistory(userId, zone);
+  if (sessions.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'muted';
+    empty.textContent = 'No sessions to show yet.';
+    list.append(empty);
+    return;
+  }
+  list.append(makeRow('history-row history-head', ['Zone', 'Topic', 'Result', 'Date']));
+  sessions.forEach(s => list.append(makeRow('history-row', [ZONE_NAMES[s.zone] || s.zone, s.title, s.result, s.date])));
+}
+
+function refreshShareState(user) {
+  const sharing = isSharing(user.id);
+  setText('shareStatus', sharing ? 'Your summary is currently shared with teachers.' : 'You are not sharing your progress.');
+  document.getElementById('shareBtn').textContent = sharing ? 'Update shared summary' : 'Share summary';
+  document.getElementById('stopShareBtn').hidden = !sharing;
+}
+
+function initProgress() {
+  const found = getCurrentUser();
+  if (!found) { window.location.href = 'login.html'; return; }
+  if (found.role === 'teacher') { window.location.href = 'shared-progress.html'; return; }
+  initShell(found);
+
+  const all = getHistory(found.id).reverse(); // oldest first, used for stats and chart
+  const average = averagePercent(all);
+  const weak = weakTopicCounts(all);
+  setText('statSessions', all.length);
+  setText('statAverage', average === null ? '--' : `${average}%`);
+  setText('statWeak', weak.length);
+  renderTrend(all);
+  renderList('weakList', weak.length ? weak.map(w => `${w.topic} (missed ${w.count}x)`) : ['No weak topics yet.']);
+
+  const filter = document.getElementById('zoneFilter');
+  renderHistory(found.id, 'all');
+  filter.addEventListener('change', () => renderHistory(found.id, filter.value));
+
+  const error = document.getElementById('shareError');
+  refreshShareState(found);
+  document.getElementById('shareBtn').addEventListener('click', () => {
+    const result = shareProgress(found);
+    error.hidden = result.ok;
+    error.textContent = result.ok ? '' : result.error;
+    refreshShareState(found);
+  });
+  document.getElementById('stopShareBtn').addEventListener('click', () => {
+    stopSharing(found.id);
+    refreshShareState(found);
+  });
+}
+
+function initShared() {
+  const found = getCurrentUser();
+  if (!found) { window.location.href = 'login.html'; return; }
+  if (found.role !== 'teacher') { window.location.href = 'dashboard.html'; return; } // students cannot open this page
+  initShell(found);
+
+  const list = document.getElementById('shareList');
+  const shares = getSharedSummaries();
+  if (shares.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'muted';
+    empty.textContent = 'No student has shared progress yet.';
+    list.append(empty);
+    return;
+  }
+  list.append(makeRow('share-row history-head', ['Student', 'Weak topics', 'Average', 'Sessions', 'Shared on']));
+  shares.forEach(s => list.append(makeRow('share-row', [
+    s.name, s.weakTopics.length ? s.weakTopics.join(', ') : 'None',
+    s.average === null ? '--' : `${s.average}%`, s.sessions, s.date
+  ])));
+}
+
 // Each HTML page sets data-page on <body>; run the matching setup
-const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard, teachback: initTeachBack, interview: initInterview, story: initStory };
+const pages = { login: initLogin, signup: initSignup, dashboard: initDashboard, teachback: initTeachBack, interview: initInterview, story: initStory, progress: initProgress, shared: initShared };
 const init = pages[document.body.dataset.page];
 if (init) init();

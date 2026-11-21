@@ -27,7 +27,7 @@ export function submitExplanation(concept, text) {
 
   saveSession({
     userId: user.id, zone: 'teachBack', score: feedback.score,
-    title: `Teach-Back: ${concept.name}`, result: `Score ${feedback.score}%`,
+    title: `Teach-Back: ${concept.name}`, result: `Score ${feedback.score}%`, weakTopics: feedback.gaps,
     date: new Date().toLocaleDateString('en-GB')
   });
 

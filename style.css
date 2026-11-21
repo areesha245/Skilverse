@@ -127,3 +127,17 @@ progress::-moz-progress-bar { background: var(--primary); }
 .option { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); cursor: pointer; font-size: 15px; }
 .option:has(input:checked) { border-color: var(--primary); background: #ECE8FF; }
 @media (max-width: 800px) { .story-cols { grid-template-columns: 1fr; } }
+
+/* Progress and Share Progress */
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.select { height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); font: 14px Inter, Arial, sans-serif; }
+.history-row { display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.share-row { display: grid; grid-template-columns: 1fr 2fr 1fr 1fr 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.history-head { border-top: 0; font-weight: 700; color: var(--muted); }
+.chart { width: 100%; height: auto; }
+.chart-grid { stroke: var(--line); stroke-width: 1; }
+.chart-line { fill: none; stroke: var(--primary); stroke-width: 3; }
+.chart-dot { fill: var(--primary); }
+@media (max-width: 800px) {
+  .history-row, .share-row { grid-template-columns: 1fr 1fr; }
+}
