@@ -21,4 +21,4 @@ AI-style, game-based learning platform (academic prototype). Students turn notes
 
 ## Team
 - Areesha Matloob
-- Breera
+- Breera Mushtaq
