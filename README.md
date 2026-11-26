@@ -2,7 +2,7 @@
 
 AI-style, game-based learning platform (academic prototype). Students turn notes into stories (Story Realm), explain concepts (Teach-Back Arena) and practise interviews (Interview Escape Room), earning XP and badges.
 
-**Live site:**https://github.com/areesha245/Skilverse.git
+Live site:https://github.com/areesha245/Skilverse.git
 
 ## How to run
 1. Clone or download this repository.
